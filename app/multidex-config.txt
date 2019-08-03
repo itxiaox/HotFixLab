@@ -1,0 +1,3 @@
+com/itxiaox/hotfixlab/MainActivity
+com/itxiaox/hotfixlab/BaseApplication
+com/itxiaox/hotfixlab/BaseActivity
