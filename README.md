@@ -12,7 +12,7 @@ PathList
 hotfixlib 库为手撸hotfix 的代码实现
 **核心为 5步：**
 >1. 获取自有的dexElements数组
-2. 获取系统的dexElements数组
-3. 合并生成新的dexElement数组
-4. 获取系统的PathList属性
-5. 通过反射将新的dexElements数组赋值给系统的PathList，实现插桩功能
+>2. 获取系统的dexElements数组
+>3. 合并生成新的dexElement数组
+>4. 获取系统的PathList属性
+>5. 通过反射将新的dexElements数组赋值给系统的PathList，实现插桩功能
