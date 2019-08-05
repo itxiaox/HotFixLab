@@ -33,6 +33,7 @@ public class ReflectUtils {
      */
 
     public static Object getPathList(Object baseDexClassLoader) throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+        //BaseDexClassLoader的路径： dalvik.system.BaseDexClassLoader
         return getField(baseDexClassLoader,Class.forName("dalvik.system.BaseDexClassLoader"),"pathList");
     }
 

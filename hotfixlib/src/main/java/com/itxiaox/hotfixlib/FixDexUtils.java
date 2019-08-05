@@ -10,7 +10,7 @@ import dalvik.system.PathClassLoader;
 
 public class FixDexUtils {
 
-    //class2.dex, 和 classes3.dex 同时需要修复
+    //class2.dex, 和 classes3.dex 同时需要修复， 可以有多个修复xx.dex
 
     private static HashSet<File> loadedDex = new HashSet<>();
 
@@ -69,10 +69,10 @@ public class FixDexUtils {
 
         try{
             //1. 获取自有的dexElements数组
-            Object myElements  = ReflectUtils.getDexElements(ReflectUtils.getPathList(pathClassLoader));//先拿到PathList，再拿到elements数组
+            Object myElements  = ReflectUtils.getDexElements(ReflectUtils.getPathList(classLoader));//先拿到PathList，再拿到elements数组
 
             //2. 获取系统的dexElements数据
-            Object sysElements  = ReflectUtils.getDexElements(ReflectUtils.getPathList(classLoader));
+            Object sysElements  = ReflectUtils.getDexElements(ReflectUtils.getPathList(pathClassLoader));
 
             //3.合并并生成新的dexElments数组
             Object dexElements = ArrayUtils.combineArray(myElements,sysElements);
