@@ -5,7 +5,7 @@ apply plugin : 'tinkerpatch-support'
  */
 def bakPath = file("${buildDir}/bakAPk")
 
-def baseInfo = "tinkerdemo-1.0.0-0805-17-22-08"
+def baseInfo = "tinkerdemo-1.0.0-0806-11-11-06"
 def variantName = "release"
 
 
@@ -40,16 +40,19 @@ tinkerpatchSupport {
     def name = "${project.name}-${variantName}"
 
     /**
-     * 基准包的文件路径, 对应 tinker 插件中的 oldApk 参数;编译补丁包时，必需指定基准版本的 apk，默认值为空，则表示不是进行补丁包的编译。
+     * 基准包的文件路径, 对应 tinker 插件中的 oldApk 参数;编译补丁包时，必需指定基准版本的 apk，默认值为空，
+     * 则表示不是进行补丁包的编译。
      */
     baseApkFile = "${pathPrefix}/${name}.apk"
     /**
-     *基准包的 Proguard mapping.txt 文件路径, 对应 tinker 插件 applyMapping 参数；在编译新的 apk 时候，我们希望通过保持基准 apk 的 proguard 混淆方式，
+     *基准包的 Proguard mapping.txt 文件路径, 对应 tinker 插件 applyMapping 参数；在编译新的 apk 时候，
+     * 我们希望通过保持基准 apk 的 proguard 混淆方式，
      * 从而减少补丁包的大小。这是强烈推荐的，编译补丁包时，我们推荐输入基准 apk 生成的 mapping.txt 文件。
      */
     baseProguardMappingFile = "${pathPrefix}/${name}-mapping.txt"
     /**
-     * 	基准包的资源 R.txt 文件路径, 对应 tinker 插件 applyResourceMapping 参数；在编译新的apk时候，我们希望通基准 apk 的 R.txt 文件来保持 Resource Id 的分配，
+     * 	基准包的资源 R.txt 文件路径, 对应 tinker 插件 applyResourceMapping 参数；在编译新的apk时候，
+     * 	我们希望通过基准apk的R.txt 文件来保持 Resource Id 的分配，
      * 	这样不仅可以减少补丁包的大小，同时也避免由于 Resource Id 改变导致 remote view 异常。
      */
     baseResourceRFile = "${pathPrefix}/${name}-R.txt"
@@ -81,16 +84,14 @@ tinkerpatchSupport {
      **/
 }
 
-/**
+ /**
  * 用于用户在代码中判断tinkerPatch是否被使能
  */
-android {
+ android {
     defaultConfig {
         buildConfigField "boolean", "TINKER_ENABLE", "${tinkerpatchSupport.tinkerEnable}"
     }
-}
-
-
+ }
 
 /**
  * 一般来说,我们无需对下面的参数做任何的修改
