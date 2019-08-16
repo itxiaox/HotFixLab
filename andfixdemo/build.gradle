@@ -1,21 +1,18 @@
-import java.lang.reflect.Field
-
 apply plugin: 'com.android.application'
-
-
 
 android {
     compileSdkVersion 28
 
 
     defaultConfig {
-        applicationId "com.itxiaox.tinkerdemo"
+        applicationId "com.itxiaox.andfixdemo"
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
+
     }
     signingConfigs {
         release {
@@ -46,19 +43,7 @@ android {
             signingConfig signingConfigs.debug
         }
     }
-    lintOptions {
-        abortOnError false
-    }
 
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "tinkerdemo_${variant.buildType.name}_${defaultConfig.versionName}_${releaseTime()}.apk"
-        }
-    }
-}
-
-static def releaseTime() {
-    return new Date().format("yyyyMMddHHmmss")
 }
 
 dependencies {
@@ -71,13 +56,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
 
-    // 若使用annotation需要单独引用,对于tinker的其他库都无需再引用
-//    provided("com.tinkerpatch.tinker:tinker-android-anno:1.9.13.3")
-    implementation("com.tinkerpatch.sdk:tinkerpatch-android-sdk:1.2.13.3"){ changing = true }
-}
-
-apply from: 'tinkerpatch.gradle'
-
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    implementation 'com.alipay.euler:andfix:0.5.0@aar'
 }

@@ -1,1 +1,1 @@
-include ':app', ':hotfixlib', ':tinkerdemo'
+include ':app', ':hotfixlib', ':tinkerdemo', ':andfixdemo'

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, ""+ErrorUtils.getSum(), Toast.LENGTH_SHORT).show();
             }
         });
+        Log.i(TAG, "onCreate: ");
     }
 
 
