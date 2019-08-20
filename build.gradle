@@ -8,8 +8,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
-//        classpath ('com.tencent.tinker:tinker-patch-gradle-plugin:1.9.1')
-
+//        tinker插件
+        classpath ("com.tencent.tinker:tinker-patch-gradle-plugin:${TINKER_VERSION}")
         // TinkerPatch 插件
         classpath ("com.tinkerpatch.sdk:tinkerpatch-gradle-plugin:1.2.13.3"){ changing = true }
         // NOTE: Do not place your application dependencies here; they belong

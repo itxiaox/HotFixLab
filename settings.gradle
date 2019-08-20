@@ -1,1 +1,14 @@
-include ':app', ':hotfixlib', ':tinkerdemo', ':andfixdemo'
+if(hasApp)
+    include ':app'
+if(hasHotfixlib)
+    include ':hotfixlib'
+if(hasTinkerdemo)
+    include ':tinkerdemo'
+if(hasTinkerpatchdemo)
+    include ':tinkerpatchdemo'
+if(hasAndfixdemo){
+    include ':andfixdemo'
+   include ':andfixlib'
+}
+
+

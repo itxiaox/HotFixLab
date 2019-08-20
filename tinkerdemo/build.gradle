@@ -1,9 +1,5 @@
-import java.lang.reflect.Field
-
 apply plugin: 'com.android.application'
-
-
-
+//apply plugin: 'com.tencent.tinker.patch'
 android {
     compileSdkVersion 28
 
@@ -13,52 +9,18 @@ android {
         minSdkVersion 23
         targetSdkVersion 28
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
-    signingConfigs {
-        release {
-            storeFile file("${rootDir}/debug.jks")
-            storePassword '123456'
-            keyAlias 'TinkerDemo'
-            keyPassword '123456'
-        }
-
-        debug {
-            storeFile file("${rootDir}/debug.jks")
-            storePassword '123456'
-            keyAlias 'TinkerDemo'
-            keyPassword '123456'
-        }
-    }
 
     buildTypes {
-
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt')
-            signingConfig signingConfigs.release
-        }
-        debug {
-            debuggable true
-            minifyEnabled false
-            signingConfig signingConfigs.debug
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    lintOptions {
-        abortOnError false
-    }
-
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
-            outputFileName = "tinkerdemo_${variant.buildType.name}_${defaultConfig.versionName}_${releaseTime()}.apk"
-        }
-    }
-}
-
-static def releaseTime() {
-    return new Date().format("yyyyMMddHHmmss")
 }
 
 dependencies {
@@ -70,14 +32,128 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    //生成application时候的使用
+    compileOnly("com.tencent.tinker:tinker-android-anno:${TINKER_VERSION}")
+    //需要显示的声明注解处理器
+    annotationProcessor "com.tencent.tinker:tinker-android-anno:${TINKER_VERSION}"
+    //tinker的核心sdk库
+    implementation("com.tencent.tinker:tinker-android-lib:${TINKER_VERSION}")
 
-    // 若使用annotation需要单独引用,对于tinker的其他库都无需再引用
-//    provided("com.tinkerpatch.tinker:tinker-android-anno:1.9.13.3")
-    implementation("com.tinkerpatch.sdk:tinkerpatch-android-sdk:1.2.13.3"){ changing = true }
+    implementation "com.android.support:multidex:1.0.3"
+
 }
 
-apply from: 'tinkerpatch.gradle'
 
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+def bakPath = file("${buildDir}/bakApk")
+
+ext{
+    tinkerEnable = true
+    tinkerOldApkPath = "${bakPath}/tinkerdemo-debug-0820-18-05-08.apk"
+    tinkerId = "1.0"
+    tinkerApplyMappingPath = "${bakPath}/"
+    tinkerApplyResourceMappingPath = "${bakPath}/tinkerdemo-debug-0820-18-05-08-R.txt"
+}
+def buildWithTinker(){
+    return ext.tinkerEnable
+}
+
+def getOldApkPatch(){
+    return ext.tinkerOldApkPath
+}
+
+def  getApplyMappingPath(){
+    return ext.tinkerApplyMappingPath
+}
+def  getApplyResourceMappingPath(){
+    return ext.tinkerApplyResourceMappingPath
+}
+def  getTinkerIdValue(){
+    return ext.tinkerId
+}
+
+
+
+if(buildWithTinker()){
+    //启用tinker
+    apply plugin: "com.tencent.tinker.patch"
+    tinkerPatch {
+        oldApk = getOldApkPatch()//指定old apk文件路径
+        ignoreWarning = true // false不忽略tinker的警告，有则终止patch文件的生成
+//        useSign = true //强制patch文件也使用签名
+        tinkerEnable = buildWithTinker();//指定是否启用tinker
+        buildConfig {
+//            applyMapping = getApplyMappingPath() //指定old apk 打包时所使用的混淆文件
+            applyResourceMapping = getApplyResourceMappingPath() //指定old apk的资源文件
+            tinkerId = getTinkerIdValue() //指定TinkerID
+            keepDexApply = false //实际开发中设为false
+        }
+        dex {
+            dexMode = "jar" //jar(适配了sdk 14以下)、raw
+            pattern = ["classes*.dex","assets/secondary-dex-?.jar"]//指定dex文件目录
+            loader = ["com.itxiao.tinkerdemo.MyTinkerApplication"]//指定加载patch文件时用到的类
+        }
+        lib {
+            pattern = ["libs/*/*.so"]
+        }
+        res {
+            pattern = ["res/*","assets/*","resources.arsc","AndroidManifest.xml"]//指定tinker可以修改的资源路径
+            ignoreChange = ["assets/sample_meta.txt"]//指定不受影响的资源路径
+            largeModSize = 100 //资源修改大小默认值，超过这个值会使用bsdiff
+        }
+        //前面是必须配置的，下面是选配的,说明一些本次补丁的一些说明
+        packageConfig{
+            configField("patchMessage","fix the 1.0 version`s bugs") //
+            configField("patchVersion","1.0")//....
+        }
+    }
+
+
+    //脚本参考，tinker github， https://github.com/Tencent/tinker/blob/dev/tinker-sample-android/app/build.gradle
+    List<String> flavors = new ArrayList<>()
+    project.android.productFlavors.each { flavor ->
+        flavors.add(flavor.name)
+
+    }
+    boolean hasFlavors = flavors.size() > 0
+    /**
+     * bak apk and mapping
+     */
+    android.applicationVariants.all {variant ->
+        /**
+         * task type ,you want to bak
+         */
+        def taskName = variant.name
+        def date = new Date().format("MMdd-HH-mm-ss")
+        tasks.all {
+            if("assemble${taskName.capitalize()}".equalsIgnoreCase(it.name)){
+                it.doLast {
+                    copy {
+                        def fileNamePrefix = "${project.name}-${variant.baseName}"
+                        def newFileNamePrefix = hasFlavors ? "${fileNamePrefix}" : "${fileNamePrefix}-${date}"
+
+                        def destPath = hasFlavors ? file("${bakPath}/${project.name}-${date}/${variant.flavorName}"): bakPath
+                        from variant.outputs.first().outputFile
+                        into destPath
+                        rename {String fileName ->
+                            fileName.replace("${fileNamePrefix}.apk","${newFileNamePrefix}.apk")
+
+                        }
+
+                        from "${buildDir}/outputs/mapping/${variant.dirName}/mapping.txt"
+                        into destPath
+                        rename {String fileName ->
+                            fileName.replace("mapping.txt","${newFileNamePrefix}-mapping.txt")
+                        }
+
+                        from "${buildDir}/intermediates/symbols/${variant.dirName}/R.txt"
+                        into destPath
+                        rename {String fileName ->
+                            fileName.replace("R.txt","${newFileNamePrefix}-R.txt")
+
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

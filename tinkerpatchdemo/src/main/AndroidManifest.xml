@@ -3,7 +3,7 @@
     package="com.itxiaox.tinkerdemo">
 
     <application
-        android:name="com.itxiao.tinkerdemo.MyTinkerApplication"
+        android:name=".SampleApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -18,11 +18,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--命令行打包必须要-->
-        <!--<meta-data android:name="TINKDER_ID"-->
-            <!--android:value="tinker_id_6235657"/>-->
+        <activity android:name=".SecondActivity" android:exported="false"/>
+
+
     </application>
 
-
-
 </manifest>
+
+<!--
+android:exported 是Android中的四大组件 Activity，Service，Provider，Receiver 四大组件中都会有的一个属性。
+总体来说它的主要作用是：是否支持其它应用调用当前组件。
+默认值：如果包含有intent-filter 默认值为true; 没有intent-filter默认值为false。
+-->
